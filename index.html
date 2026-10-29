@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Inkwell Library – Sign in</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: dark;
+            --wood: #1E120B;
+            --plank: #4A2F1C;
+            --plank2: #2E1C10;
+            --paper: #F2E6CF;
+            --paper2: #E6D6B6;
+            --ink: #2A2016;
+            --muted: #76644E;
+            --cover: #7A3B22;
+            --cover2: #4F2414;
+            --brass: #D9AE6A;
+            --err: #A4262C;
+            --w: min(380px, 88vw);
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px)
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-padding-top: env(safe-area-inset-top, 0px);
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: var(--wood);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--paper)
+        }
+
+        /* library */
+        .lib {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end
+        }
+
+        .row {
+            height: 190px;
+            flex: none;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            padding: 0 10px;
+            border-bottom: 16px solid var(--plank);
+            background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, .35));
+            box-shadow: 0 10px 14px -6px rgba(0, 0, 0, .6);
+            overflow: hidden;
+            position: relative
+        }
+
+        .row::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -16px;
+            height: 5px;
+            background: linear-gradient(var(--plank), var(--plank2))
+        }
+
+        .b {
+            --c: #5C3A21;
+            flex: none;
+            position: relative;
+            background: linear-gradient(90deg, rgba(0, 0, 0, .42), rgba(255, 255, 255, .07) 28%, rgba(0, 0, 0, .28)), var(--c);
+            border-radius: 2px 2px 0 0
+        }
+
+        .b::before,
+        .b::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            background: rgba(222, 184, 120, .5)
+        }
+
+        .b::before {
+            top: 11%;
+            height: 5px
+        }
+
+        .b::after {
+            bottom: 13%;
+            height: 3px
+        }
+
+        .b.lean {
+            transform: rotate(-9deg);
+            transform-origin: bottom left;
+            margin-right: 34px
+        }
+
+        .glow {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(60% 55% at 50% 22%, rgba(255, 196, 120, .28), transparent 70%), radial-gradient(120% 100% at 50% 50%, transparent 45%, rgba(0, 0, 0, .65))
+        }
+
+        .hero {
+            position: relative;
+            z-index: 2;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+            font: inherit;
+            --c: var(--cover);
+            animation: pulse 2.6s ease-in-out infinite
+        }
+
+        .hero::before {
+            top: 9%
+        }
+
+        .hero span {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            white-space: nowrap;
+            font-family: 'IM Fell English', Georgia, serif;
+            font-size: 1.05rem;
+            color: var(--brass);
+            letter-spacing: .05em
+        }
+
+        .hero:hover {
+            transform: translateY(-14px);
+            transition: transform .25s
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(217, 174, 106, 0)
+            }
+
+            50% {
+                box-shadow: 0 0 26px 6px rgba(217, 174, 106, .55)
+            }
+        }
+
+        .top {
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 0px) + 18px);
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 3;
+            pointer-events: none
+        }
+
+        .brand {
+            font-family: 'IM Fell English', Georgia, serif;
+            font-size: 1.4rem;
+            color: var(--brass)
+        }
+
+        .hint {
+            font-size: .82rem;
+            background: rgba(30, 18, 11, .75);
+            border: 1px solid rgba(217, 174, 106, .45);
+            padding: 8px 14px;
+            border-radius: 99px;
+            color: var(--paper)
+        }
+
+        /* overlay + book */
+        .bd {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: grid;
+            place-items: center;
+            background: rgba(18, 10, 5, .78);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .5s, visibility 0s .5s
+        }
+
+        .bd.on {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity .5s
+        }
+
+        .fly {
+            transition: transform 1s cubic-bezier(.6, .1, .2, 1)
+        }
+
+        .scene {
+            perspective: 1800px;
+            width: var(--w);
+            height: 520px;
+            transition: transform 1.1s cubic-bezier(.6, .1, .2, 1)
+        }
+
+        .scene.open {
+            transform: translateX(calc(var(--w) / 2))
+        }
+
+        .book {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d
+        }
+
+        .page {
+            position: absolute;
+            inset: 0;
+            background: var(--paper);
+            color: var(--ink);
+            border-radius: 2px 8px 8px 2px;
+            box-shadow: 0 24px 40px rgba(0, 0, 0, .5);
+            padding: 44px 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-image: linear-gradient(90deg, rgba(0, 0, 0, .16), transparent 14px)
+        }
+
+        .rib {
+            position: absolute;
+            top: -4px;
+            right: 34px;
+            width: 18px;
+            height: 90px;
+            background: var(--cover);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%)
+        }
+
+        h1 {
+            font-family: 'IM Fell English', Georgia, serif;
+            font-weight: 400;
+            font-size: 2.2rem;
+            margin: 0 0 4px
+        }
+
+        .sub {
+            font-size: .85rem;
+            color: var(--muted);
+            margin: 0 0 22px;
+            line-height: 1.5
+        }
+
+        .f {
+            margin-bottom: 14px
+        }
+
+        .f label {
+            display: block;
+            font-size: .76rem;
+            color: var(--muted);
+            margin-bottom: 2px
+        }
+
+        .f input {
+            width: 100%;
+            background: transparent;
+            border: 0;
+            border-bottom: 1px solid var(--ink);
+            padding: 6px 0;
+            font: inherit;
+            font-size: 1rem;
+            color: var(--ink);
+            outline: 0
+        }
+
+        .f input:focus {
+            border-bottom-width: 2px;
+            border-color: var(--cover)
+        }
+
+        .f.bad input {
+            border-color: var(--err)
+        }
+
+        .msg {
+            font-size: .76rem;
+            color: var(--err);
+            margin: 3px 0 0;
+            min-height: 1em
+        }
+
+        .scene[data-mode="login"] .nm {
+            display: none
+        }
+
+        .btn {
+            width: 100%;
+            margin-top: 6px;
+            border: 0;
+            border-radius: 3px;
+            background: var(--cover);
+            color: #F5ECDA;
+            font: inherit;
+            font-weight: 700;
+            padding: 13px;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px var(--brass)
+        }
+
+        .foot {
+            font-size: .84rem;
+            color: var(--muted);
+            text-align: center;
+            margin: 16px 0 0
+        }
+
+        .foot a {
+            color: var(--cover);
+            cursor: pointer;
+            font-weight: 700
+        }
+
+        .cov {
+            position: absolute;
+            inset: 0;
+            transform: rotateY(0deg) translateZ(1px);
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: transform 1.1s cubic-bezier(.6, .1, .2, 1)
+        }
+
+        .open .cov {
+            transform: rotateY(-180deg) translateZ(1px)
+        }
+
+        .face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden
+        }
+
+        .front {
+            border-radius: 2px 8px 8px 2px;
+            background: linear-gradient(100deg, var(--cover2), var(--cover) 8%, var(--cover));
+            box-shadow: 0 24px 40px rgba(0, 0, 0, .5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            font-family: 'IM Fell English', Georgia, serif;
+            color: var(--brass);
+            text-align: center
+        }
+
+        .front::before {
+            content: "";
+            position: absolute;
+            inset: 18px 18px 18px 26px;
+            border: 1.5px solid var(--brass)
+        }
+
+        .front b {
+            font-weight: 400;
+            font-size: 3rem;
+            line-height: 1.05
+        }
+
+        .front i {
+            font-size: .95rem;
+            font-style: italic;
+            opacity: .9
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            background: var(--paper2);
+            color: var(--ink);
+            border-radius: 8px 2px 2px 8px;
+            box-shadow: 0 24px 40px rgba(0, 0, 0, .5);
+            padding: 44px 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 16px;
+            background-image: linear-gradient(270deg, rgba(0, 0, 0, .16), transparent 14px)
+        }
+
+        .back h2 {
+            font-family: 'IM Fell English', Georgia, serif;
+            font-weight: 400;
+            font-size: 1.6rem;
+            margin: 0
+        }
+
+        .back p {
+            margin: 0;
+            font-size: .88rem;
+            line-height: 1.6;
+            color: var(--muted)
+        }
+
+        .rule {
+            height: 1px;
+            background: var(--ink);
+            opacity: .25
+        }
+
+        .stamp {
+            align-self: flex-start;
+            border: 2px solid var(--cover);
+            color: var(--cover);
+            border-radius: 50%;
+            width: 96px;
+            height: 96px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            font-family: 'IM Fell English', Georgia, serif;
+            font-size: .95rem;
+            line-height: 1.15;
+            transform: rotate(-12deg);
+            opacity: .85
+        }
+
+        .close {
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 0px) + 16px);
+            right: 20px;
+            z-index: 12;
+            background: transparent;
+            border: 1px solid var(--brass);
+            color: var(--brass);
+            border-radius: 99px;
+            font: inherit;
+            font-size: .82rem;
+            padding: 8px 16px;
+            cursor: pointer
+        }
+
+        .close:hover {
+            background: var(--brass);
+            color: var(--cover2)
+        }
+
+        .page.done>:not(.ok):not(.rib) {
+            display: none
+        }
+
+        .ok {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 14px
+        }
+
+        .page.done .ok {
+            display: flex
+        }
+
+        .ok svg {
+            width: 88px;
+            height: 88px
+        }
+
+        .ok circle {
+            fill: none;
+            stroke: var(--cover);
+            stroke-width: 3;
+            stroke-dasharray: 226;
+            stroke-dashoffset: 226
+        }
+
+        .ok path {
+            fill: none;
+            stroke: var(--cover);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 55;
+            stroke-dashoffset: 55
+        }
+
+        .page.done .ok circle {
+            animation: draw .6s ease forwards
+        }
+
+        .page.done .ok path {
+            animation: draw .4s .5s ease forwards
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0
+            }
+        }
+
+        .ok h2 {
+            font-family: 'IM Fell English', Georgia, serif;
+            font-weight: 400;
+            font-size: 2rem;
+            margin: 0
+        }
+
+        .ok p {
+            margin: 0;
+            font-size: .92rem;
+            line-height: 1.6;
+            color: var(--muted)
+        }
+
+        .ok .btn {
+            margin-top: 10px
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--brass);
+            outline-offset: 3px
+        }
+
+        @media (max-width:860px) {
+            .scene.open {
+                transform: none
+            }
+
+            .hint {
+                display: none
+            }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            .hero {
+                animation: none
+            }
+
+            * {
+                transition-duration: .01s !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lib" id="lib" aria-label="Library shelves"></div>
+    <div class="glow"></div>
+    <div class="top"><span class="brand">Inkwell Library</span><span class="hint">Find the glowing book to sign
+            in</span></div>
+
+    <div class="bd" id="bd">
+        <button class="close" id="close" type="button">Back to library</button>
+        <div class="fly" id="fly">
+            <div class="scene" id="scene" data-mode="signup">
+                <div class="book">
+                    <section class="page" id="pg" aria-label="Account form">
+                        <div class="ok" id="ok" role="status"><svg viewBox="0 0 84 84" aria-hidden="true">
+                                <circle cx="42" cy="42" r="36" />
+                                <path d="M26 44L38 56L60 30" />
+                            </svg>
+                            <h2 id="okt">Success</h2>
+                            <p id="okp"></p><button class="btn" id="okb" type="button">Back to library</button>
+                        </div>
+                        <span class="rib" aria-hidden="true"></span>
+                        <h1 id="title">Create account</h1>
+                        <p class="sub" id="sub">Join to save books and track orders.</p>
+                        <form id="f" novalidate>
+                            <div class="f nm"><label for="nm">Full name</label><input id="nm" autocomplete="name"></div>
+                            <div class="f" id="fe"><label for="email">Email</label><input id="email" type="email"
+                                    autocomplete="email">
+                                <p class="msg" id="me"></p>
+                            </div>
+                            <div class="f" id="fp"><label for="pw">Password</label><input id="pw" type="password"
+                                    autocomplete="new-password">
+                                <p class="msg" id="mp"></p>
+                            </div>
+                            <button class="btn" id="go" type="submit">Create account</button>
+                        </form>
+                        <p class="foot" id="foot">Already a member? <a id="sw" role="button" tabindex="0">Sign in</a>
+                        </p>
+                    </section>
+                    <div class="cov">
+                        <div class="face front"><b>Inkwell</b><i>Library &amp; Bookshop</i></div>
+                        <div class="face back" aria-hidden="true">
+                            <h2>Welcome to the library</h2>
+                            <p>Your saved shelves, wishlist and past orders are kept inside.</p>
+                            <div class="rule"></div>
+                            <div class="stamp">Inkwell<br>Library<br>Member</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var lib = document.getElementById('lib'), bd = document.getElementById('bd'), fly = document.getElementById('fly'), scene = document.getElementById('scene'), hero = null;
+        var COLORS = ['#5C3A21', '#7A4B2A', '#8B5E3C', '#3E2616', '#6B2D26', '#A47148', '#4F3B2A', '#2F2118', '#9C6B3F', '#58301C', '#84553A'];
+        function rng(a) {return function () {a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296}}
+        function build() {
+            var r = rng(7), rows = Math.max(3, Math.ceil(innerHeight / 190)), W = innerWidth; lib.innerHTML = ''; hero = null;
+            var heroRow = Math.min(1, rows - 1);
+            for (var i = 0; i < rows; i++) {
+                var row = document.createElement('div'); row.className = 'row'; row.setAttribute('aria-hidden', 'true');
+                var x = 10, heroAt = W * (.3 + .12 * r()), placed = false;
+                while (x < W - 10) {
+                    var w = Math.round(20 + r() * 30);
+                    if (i === heroRow && !placed && x > heroAt) {
+                        var h = document.createElement('button'); h.className = 'b hero'; h.style.width = '58px'; h.style.height = '178px'; h.type = 'button';
+                        h.setAttribute('aria-label', 'Open this book to sign in or create an account'); h.innerHTML = '<span>Sign in</span>';
+                        h.onclick = openBook; row.appendChild(h); hero = h; placed = true; x += 60; continue;
+                    }
+                    var b = document.createElement('div'); b.className = 'b' + (r() < .06 ? ' lean' : '');
+                    b.style.width = w + 'px'; b.style.height = Math.round(100 + r() * 70) + 'px'; b.style.setProperty('--c', COLORS[Math.floor(r() * COLORS.length)]);
+                    row.appendChild(b); x += w + 2;
+                }
+                lib.appendChild(row);
+                if (i === heroRow) {row.removeAttribute('aria-hidden')}
+            }
+        }
+        build(); var t; addEventListener('resize', function () {clearTimeout(t); t = setTimeout(function () {if (!bd.classList.contains('on')) build()}, 200)});
+
+        function start() {
+            var r = hero.getBoundingClientRect(), w = scene.offsetWidth, h = scene.offsetHeight;
+            var tx = r.left + r.width / 2 - innerWidth / 2, ty = r.top + r.height / 2 - innerHeight / 2;
+            return 'translate(' + tx + 'px,' + ty + 'px) scale(' + (r.width / w) + ',' + (r.height / h) + ')';
+        }
+        function openBook() {
+            document.getElementById('pg').classList.remove('done');
+            bd.classList.add('on');
+            fly.style.transition = 'none'; fly.style.transform = start(); fly.offsetWidth;
+            fly.style.transition = ''; fly.style.transform = 'none'; hero.style.visibility = 'hidden';
+            setTimeout(function () {scene.classList.add('open')}, 1000);
+            setTimeout(function () {document.getElementById(scene.dataset.mode === 'signup' ? 'nm' : 'email').focus()}, 2200);
+        }
+        function closeBook() {
+            if (!bd.classList.contains('on')) return;
+            scene.classList.remove('open');
+            setTimeout(function () {fly.style.transform = start(); bd.classList.remove('on')}, 1100);
+            setTimeout(function () {hero.style.visibility = 'visible'; document.getElementById('pg').classList.remove('done'); document.getElementById('f').reset()}, 2000);
+        }
+        document.getElementById('close').onclick = closeBook;
+        addEventListener('keydown', function (e) {if (e.key === 'Escape') closeBook()});
+
+        var email = document.getElementById('email'), pw = document.getElementById('pw');
+        function setMode(m) {
+            var s = m === 'signup'; scene.dataset.mode = m;
+            document.getElementById('title').textContent = s ? 'Create account' : 'Welcome back';
+            document.getElementById('sub').textContent = s ? 'Join to save books and track orders.' : 'Pick up where you left off.';
+            document.getElementById('go').textContent = s ? 'Create account' : 'Sign in';
+            document.getElementById('foot').innerHTML = s ? 'Already a member? <a id="sw" role="button" tabindex="0">Sign in</a>' : 'New here? <a id="sw" role="button" tabindex="0">Create account</a>';
+            pw.autocomplete = s ? 'new-password' : 'current-password'; bind();
+        }
+        function bind() {var a = document.getElementById('sw'), go = function () {setMode(scene.dataset.mode === 'signup' ? 'login' : 'signup')}; a.onclick = go; a.onkeydown = function (e) {if (e.key === 'Enter' || e.key === ' ') {e.preventDefault(); go()} }}
+        bind();
+        document.getElementById('f').addEventListener('submit', function (e) {
+            e.preventDefault(); var a = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value), b = pw.value.length >= 6;
+            document.getElementById('fe').classList.toggle('bad', !a); document.getElementById('fp').classList.toggle('bad', !b);
+            document.getElementById('me').textContent = a ? '' : 'Enter a valid email, like name@example.com.';
+            document.getElementById('mp').textContent = b ? '' : 'Password must be at least 6 characters.';
+            if (a && b) {var s = scene.dataset.mode === 'signup', n = document.getElementById('nm').value.trim().split(' ')[0]; document.getElementById('okt').textContent = s ? 'Account created' : 'Signed in'; document.getElementById('okp').textContent = s ? 'Your account is ready' + (n ? ', ' + n : '') + '. Please sign in to continue.' : 'You are signed in. Happy reading.'; document.getElementById('pg').classList.add('done'); var ob = document.getElementById('okb'); if (s) {ob.textContent = 'Continue to sign in'; ob.onclick = function () {document.getElementById('pg').classList.remove('done'); document.getElementById('f').reset(); setMode('login'); document.getElementById('email').focus()}} else {ob.textContent = 'Back to library'; ob.onclick = closeBook} }
+        });
+    </script>
+</body>
+
+</html>
